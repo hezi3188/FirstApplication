@@ -7,7 +7,7 @@
     <string-array name="package_type_select">
         <item>Big package</item>
         <item>Small package</item>
-        <item>Envelope</item>
+        <item>Envelope </item>
     </string-array>
     <string name="is_the_package_fragile">Is the package fragile?</string>
     <string name="name">Name</string>
