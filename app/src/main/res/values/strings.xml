@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">First App</string>
+    <string name="button">Button</string>
+    <string name="package_details">Package Details</string>
+    <string name="package_type">package type</string>
+    <string name="is_the_package_fragile">Is the package fragile?</string>
+    <string name="name">Name</string>
+    <string-array name="package_type_select">
+        <item>Envelope</item>
+        <item>Big package</item>
+        <item>Small package</item>
+    </string-array>
+</resources>
