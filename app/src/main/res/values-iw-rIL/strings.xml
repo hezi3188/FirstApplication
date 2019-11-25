@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">First App</string>
+    <string name="app_name">אפליקציה ראשונה</string>
     <string name="button">Button</string>
     <string name="package_details">Package Details</string>
     <string name="package_type">package type</string>
     <string-array name="package_type_select">
         <item>Big package</item>
         <item>Small package</item>
-        <item>Envelope  </item>
+        <item>Envelope</item>
     </string-array>
     <string name="is_the_package_fragile">Is the package fragile?</string>
     <string name="name">Name</string>
