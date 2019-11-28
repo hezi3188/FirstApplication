@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     Spinner spinner;
+
     ArrayAdapter<CharSequence> adapter;
 
     @Override
