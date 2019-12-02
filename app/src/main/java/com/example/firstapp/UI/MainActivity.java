@@ -1,18 +1,20 @@
-package com.example.firstapp;
+package com.example.firstapp.UI;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.graphics.Color;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
+import com.example.firstapp.Entities.*;
+import com.example.firstapp.Entities.Parcel;
+import com.example.firstapp.Entities.ParcelType;
+import com.example.firstapp.Entities.ParcelWeight;
+import com.example.firstapp.R;
 
 public class MainActivity extends AppCompatActivity {
     Spinner spinner;
@@ -39,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        final Package p=new Package();
+        final Parcel p=new Parcel();
 
         Button addButton=(Button)findViewById(R.id.addButton);
         addButton.setOnClickListener(new View.OnClickListener() {
@@ -47,23 +49,23 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 int itemPosition =  ((Spinner) findViewById(R.id.packageSpinner)).getSelectedItemPosition();
                 if(itemPosition==1)
-                     p.setPackageType(PackageType.ENVELOPE);
+                     p.setParcelType(ParcelType.ENVELOPE);
                 if(itemPosition==2)
-                    p.setPackageType(PackageType.SMALL_PACKAGE);
+                    p.setParcelType(ParcelType.SMALL_PACKAGE);
                 if(itemPosition==3)
-                    p.setPackageType(PackageType.BIG_PACKAGE);
+                    p.setParcelType(ParcelType.BIG_PACKAGE);
 
 
                 p.setFragile(findViewById(R.id.FragileCheckBox).isSelected());
                 double weight =Double.parseDouble(((EditText)findViewById(R.id.weightEditText)).getText().toString());
                 if(weight<=0.5)
-                    p.setPackageWeight(PackageWeight.UNTIL_500_GR);
+                    p.setParcelWeight(ParcelWeight.UNTIL_500_GR);
                 else if(weight<=1.0)
-                    p.setPackageWeight(PackageWeight.UNTIL_1_KG );
+                    p.setParcelWeight(ParcelWeight.UNTIL_1_KG );
                 else if(weight<=5.0)
-                    p.setPackageWeight(PackageWeight.UNTIL_5_KG );
+                    p.setParcelWeight(ParcelWeight.UNTIL_5_KG );
                 else if(weight<=20.0)
-                    p.setPackageWeight(PackageWeight.UNTIL_20_KG );
+                    p.setParcelWeight(ParcelWeight.UNTIL_20_KG );
 
                 p.setRecipientName(((EditText)findViewById(R.id.nameEditText)).getText().toString());
                 p.setRecipientAddress(((EditText)findViewById(R.id.recipientAddressEditText)).getText().toString());
