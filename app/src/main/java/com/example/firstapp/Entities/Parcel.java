@@ -4,11 +4,12 @@ import android.location.Location;
 import android.provider.ContactsContract;
 
 
+import com.google.firebase.database.Exclude;
+
 import java.util.Date;
 
-;
-;
 public class Parcel {
+    private long parcelID;
     private ParcelType parcelType;
     private boolean isFragile;
     private ParcelWeight parcelWeight;
@@ -21,14 +22,15 @@ public class Parcel {
     private ContactsContract.CommonDataKinds.Email recipientEmail;
     private ParcelStatus status;
     private String deliveryName;
-
+    private static int id = 0;
     //-------------Ctors--------------------//
     public Parcel() {
         this.status = ParcelStatus.SENT;
         this.deliveryName = "NO";
     }
 
-    public Parcel(ParcelType parcelType, boolean isFragile, ParcelWeight parcelWeight, Location storageLocation, String recipientName, String recipientAddress, Date deliveryParcelDate, Date getParcelDate, String phoneNumber, ContactsContract.CommonDataKinds.Email recipientEmail, ParcelStatus status) {
+
+    public Parcel(ParcelType parcelType, boolean isFragile, ParcelWeight parcelWeight, Location storageLocation, String recipientName, String recipientAddress, Date deliveryParcelDate, Date getParcelDate, String phoneNumber, ContactsContract.CommonDataKinds.Email recipientEmail, ParcelStatus status, String deliveryName) {
         this.parcelType = parcelType;
         this.isFragile = isFragile;
         this.parcelWeight = parcelWeight;
@@ -40,12 +42,26 @@ public class Parcel {
         this.phoneNumber = phoneNumber;
         this.recipientEmail = recipientEmail;
         this.status = status;
+        this.deliveryName = deliveryName;
+        parcelID = ++id;
     }
-
-    //-------------------------------------//
+//-------------------------------------//
 
 
     //--------------Ges&Set-----------------//
+
+@Exclude
+    public long getParcelID() {
+        return parcelID;
+    }
+
+    public String getDeliveryName() {
+        return deliveryName;
+    }
+
+    public void setDeliveryName(String deliveryName) {
+        this.deliveryName = deliveryName;
+    }
 
     public ParcelType getParcelType() {
         return parcelType;
