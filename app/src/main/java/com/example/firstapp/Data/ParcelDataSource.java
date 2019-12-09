@@ -12,20 +12,34 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.*;
 public class ParcelDataSource {
 
+    //----------singleton-------//
+    private  ParcelDataSource(){}
+    private static ParcelDataSource instance=null;
+
+    public static ParcelDataSource getInstance() {
+        if(instance==null)
+            instance=new ParcelDataSource();
+        return instance;
+    }
+
+    //--------interfaces-----------//
     public interface  Action<T>{
         void OnSuccess(T obj);
         void OnFailure(Exception exception);
         void OnProgress(String status, double percent);
     }
-    public  interface NotifyDataChange<T>{
+    public interface NotifyDataChange<T>{
         void  onDataChanged(T obj);
         void onFailure(Exception exception);
     }
 
-    static  DatabaseReference ParcelRef;
+    //----------startFields----------//
+    static DatabaseReference ParcelRef;
     static List<Parcel> parcelList;
     static List<Customer>customerList;
     static {
@@ -34,19 +48,20 @@ public class ParcelDataSource {
         parcelList = new ArrayList<>();
         customerList=new ArrayList<>();
     }
-
-    private static ChildEventListener parcelsRefChildEventListener;
     private static ChildEventListener customersRefChildEventListener;
 
-    public static void notifyToParcelList(final NotifyDataChange<List<Parcel>> notifyDataChange){}
-    public static void stopNotifyToParcelList(){}
 
+    //--------------methods------------------//
     public static void notifyToCustomerAndParcelList(final NotifyDataChange<List<Customer>> notifyCustomersDataChange, final NotifyDataChange<List<Parcel>> notifyParcelsDataChange){
-        if(notifyCustomersDataChange != null){
+        if(notifyCustomersDataChange != null){//need to check
             if (customersRefChildEventListener != null){
                 notifyCustomersDataChange.onFailure(new Exception("ERROR"));
+                notifyParcelsDataChange.onFailure(new Exception("ERROR"));
+                return;
             }
+            //we do clear because in first time onChildAdded add all the customers
             customerList.clear();
+            parcelList.clear();
             customersRefChildEventListener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -69,7 +84,7 @@ public class ParcelDataSource {
                     for (int i = 0; i < customerList.size(); ++i) {
                         if (customerList.get(i).getId().equals(id)) {
                             customerList.set(i, customer);
-                            for (Parcel p : parcelList) {
+                            for (Parcel p : parcelList) {//here we can get bombastic changes at the list
                                 if (p.getCustomerId() == id) {
                                     parcelList.remove(p);
                                 }
@@ -80,6 +95,9 @@ public class ParcelDataSource {
                             break;
                         }
                     }
+
+                    notifyCustomersDataChange.onDataChanged(customerList);
+                    notifyParcelsDataChange.onDataChanged(parcelList);
                 }
 
                 @Override
@@ -87,12 +105,20 @@ public class ParcelDataSource {
                     Customer customer = dataSnapshot.getValue(Customer.class);
                     String id = dataSnapshot.getKey();
                     customer.setId(id);
-                    for (Customer c : customerList) {
+                    for (Parcel p : parcelList) {
+                        if (p.getCustomerId() == id) {
+                            parcelList.remove(p);
+                        }
+                    }
+                    for (Customer c : customerList) {//maybe do the for such as OSF
                         if (c.getId().equals(id)) {
                             customerList.remove(c);
                             break;
                         }
                     }
+
+                    notifyCustomersDataChange.onDataChanged(customerList);
+                    notifyParcelsDataChange.onDataChanged(parcelList);
                 }
 
                 @Override
@@ -103,16 +129,54 @@ public class ParcelDataSource {
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
                     notifyCustomersDataChange.onFailure(databaseError.toException());
-
+                    notifyParcelsDataChange.onFailure(databaseError.toException());
                 }
             };
+            ParcelRef.addChildEventListener(customersRefChildEventListener);
         }
     }
-    public static void stopNotifyToCustomrsList(){}
+    public static void stopNotifyToCustomerAndParcelList(){
+        if(customersRefChildEventListener!=null){
+            ParcelRef.removeEventListener(customersRefChildEventListener);
+            customersRefChildEventListener=null;
+        }
+    }
 
 
-    private static void addParcelToFireBase(final Parcel parcel, final Action<Long> action) throws Exception {
-        String customerKey = String.valueOf(parcel.getCustomerId());
+    private static void addParcel(final Parcel parcel, final Action<Long> action) throws Exception {
+        final String customerKey = String.valueOf(parcel.getCustomerId());
+        ParcelRef.child(customerKey).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                final Customer customer=dataSnapshot.getValue(Customer.class);
+                customer.setId(customerKey);
+
+                if(customer==null){
+                    action.OnFailure(new Exception("The customer don't exist!"));
+                    return;
+                }
+
+                customer.addParcel(parcel);
+
+                ParcelRef.child(customerKey).setValue(customer).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        action.OnSuccess(parcel.getParcelID());
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        action.OnFailure(e);
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                action.OnFailure(databaseError.toException());
+            }
+        });
+        /*
         Customer customer;
         customer=null;
         for (int i=0;i<customerList.size();i++){
@@ -138,20 +202,57 @@ public class ParcelDataSource {
             action.OnFailure(e);
             action.OnProgress("error upload parcel data", 100);
         }
-    });
+    });*/
     }
+
+
+    public static void removeParcel(final long parcelId, final String customerId, final Action<Long> action) throws Exception {
+       ParcelRef.child(customerId).addListenerForSingleValueEvent(new ValueEventListener() {
+           @Override
+           public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+               final Customer customer=dataSnapshot.getValue(Customer.class);
+               customer.setId(customerId);
+               if(customer==null){
+                   action.OnFailure(new Exception("The parcel don't exist maybe because the customer deleted"));
+                   return;
+               }
+               boolean flag=false;
+               for(int i=0;i<customer.getParcels().size();i++){
+                   if(parcelId==customer.getParcels().get(i).getParcelID()){
+                       flag=true;
+                       customer.getParcels().remove(i);
+                       break;
+                   }
+               }
+               if(flag==false){
+                   action.OnFailure(new Exception("The parcel don't exist!"));
+                   return;
+               }
+
+               ParcelRef.child(customerId).setValue(customer).addOnSuccessListener(new OnSuccessListener<Void>() {
+                   @Override
+                   public void onSuccess(Void aVoid) {
+                       action.OnSuccess(parcelId);
+                   }
+               }).addOnFailureListener(new OnFailureListener() {
+                   @Override
+                   public void onFailure(@NonNull Exception e) {
+                       action.OnFailure(e);
+                   }
+               });
+           }
+
+           @Override
+           public void onCancelled(@NonNull DatabaseError databaseError) {
+               action.OnFailure(databaseError.toException());
+           }
+       });
+    }
+    /*
     private static class SingletoneHolder{
         private final static ParcelDataSource instance = new ParcelDataSource();
     }
     public static ParcelDataSource getInstance(){
         return  SingletoneHolder.instance;
-    }
-    public static void addParcel(final Parcel parcel, final Action<Long> action){
-
-    }
-
-
-
-
-
+    }*/
 }

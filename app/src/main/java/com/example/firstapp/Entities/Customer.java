@@ -21,7 +21,7 @@ public class Customer {
     private List<Parcel> parcels;
 
     public Customer() {
-        parcels=new ArrayList<Parcel>();
+        parcels=new ArrayList<>();
     }
 
     //---------Methods-------------//
