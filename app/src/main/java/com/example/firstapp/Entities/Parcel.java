@@ -16,7 +16,7 @@ public class Parcel {
     private Date getParcelDate;
     private ParcelStatus status;
     private String deliveryName;
-    private long customerId;
+    private String customerId;
     private static int id = 0;
     //-------------Ctors--------------------//
     public Parcel() {
@@ -31,11 +31,11 @@ public class Parcel {
     //--------------Ges&Set-----------------//
 
 
-    public long getCustomerId() {
+    public String getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(long customerId) {
+    public void setCustomerId(String customerId) {
         this.customerId = customerId;
     }
 

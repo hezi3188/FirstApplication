@@ -2,17 +2,22 @@ package com.example.firstapp.Entities;
 
 import android.provider.ContactsContract;
 
+import com.google.firebase.database.Exclude;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Customer {
-    private long id;
+    private String id;
     private String firstName;
     private String lastName;
-    private String address;
+    private String city;
+    private String country;
+    private String street;
+    private int buildingNumber;
+    private int postalAddress;
     private String phoneNumber;
-    private ContactsContract.CommonDataKinds.Email email;
-    private String password;
+    private String email;
     private List<Parcel> parcels;
 
     public Customer() {
@@ -26,11 +31,51 @@ public class Customer {
 
     //----------Get&Set-------------//
 
-    public long getId() {
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getStreet() {
+        return street;
+    }
+
+    public void setStreet(String street) {
+        this.street = street;
+    }
+
+    public int getBuildingNumber() {
+        return buildingNumber;
+    }
+
+    public void setBuildingNumber(int buildingNumber) {
+        this.buildingNumber = buildingNumber;
+    }
+
+    public int getPostalAddress() {
+        return postalAddress;
+    }
+
+    public void setPostalAddress(int postalAddress) {
+        this.postalAddress = postalAddress;
+    }
+    @Exclude
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -50,13 +95,7 @@ public class Customer {
         this.lastName = lastName;
     }
 
-    public String getAddress() {
-        return address;
-    }
 
-    public void setAddress(String address) {
-        this.address = address;
-    }
 
     public String getPhoneNumber() {
         return phoneNumber;
@@ -66,20 +105,12 @@ public class Customer {
         this.phoneNumber = phoneNumber;
     }
 
-    public ContactsContract.CommonDataKinds.Email getEmail() {
+    public String getEmail() {
         return email;
     }
 
-    public void setEmail(ContactsContract.CommonDataKinds.Email email) {
+    public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public List<Parcel> getParcels() {
