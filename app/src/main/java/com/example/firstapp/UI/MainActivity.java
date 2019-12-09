@@ -20,6 +20,8 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
     Spinner spinner;
+    private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference mMessageDatabaseReference;
 
     ArrayAdapter<CharSequence> adapter;
 
