@@ -15,9 +15,13 @@ import com.example.firstapp.Entities.Parcel;
 import com.example.firstapp.Entities.ParcelType;
 import com.example.firstapp.Entities.ParcelWeight;
 import com.example.firstapp.R;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
     Spinner spinner;
+    private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference mMessageDatabaseReference;
 
     ArrayAdapter<CharSequence> adapter;
 
