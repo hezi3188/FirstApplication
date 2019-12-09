@@ -30,10 +30,10 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("message");
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mMessageDatabaseReference = mFirebaseDatabase.getReference().child("message");
 
-        myRef.setValue("Hello, World!");
+        mMessageDatabaseReference.setValue("Hello, World!");
         spinner = (Spinner)findViewById(R.id.packageSpinner);
         adapter = ArrayAdapter.createFromResource(this,R.array.package_type_select,android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -76,9 +76,9 @@ public class MainActivity extends AppCompatActivity {
                 else if(weight<=20.0)
                     p.setParcelWeight(ParcelWeight.UNTIL_20_KG );
 
-                p.setRecipientName(((EditText)findViewById(R.id.nameEditText)).getText().toString());
-                p.setRecipientAddress(((EditText)findViewById(R.id.recipientAddressEditText)).getText().toString());
-                p.setPhoneNumber(((EditText)findViewById(R.id.phoneEditText)).getText().toString());
+              //  p.setRecipientName(((EditText)findViewById(R.id.nameEditText)).getText().toString());
+              //  p.setRecipientAddress(((EditText)findViewById(R.id.recipientAddressEditText)).getText().toString());
+              //  p.setPhoneNumber(((EditText)findViewById(R.id.phoneEditText)).getText().toString());
 
 
 
