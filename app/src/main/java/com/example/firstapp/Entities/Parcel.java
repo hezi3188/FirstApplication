@@ -1,8 +1,6 @@
 package com.example.firstapp.Entities;
 
 import android.location.Location;
-import android.provider.ContactsContract;
-
 
 import com.google.firebase.database.Exclude;
 
@@ -14,14 +12,11 @@ public class Parcel {
     private boolean isFragile;
     private ParcelWeight parcelWeight;
     private Location storageLocation;
-    private String recipientName;
-    private String recipientAddress;
     private Date deliveryParcelDate;
     private Date getParcelDate;
-    private String phoneNumber;
-    private ContactsContract.CommonDataKinds.Email recipientEmail;
     private ParcelStatus status;
     private String deliveryName;
+    private long customerId;
     private static int id = 0;
     //-------------Ctors--------------------//
     public Parcel() {
@@ -30,27 +25,21 @@ public class Parcel {
     }
 
 
-    public Parcel(ParcelType parcelType, boolean isFragile, ParcelWeight parcelWeight, Location storageLocation, String recipientName, String recipientAddress, Date deliveryParcelDate, Date getParcelDate, String phoneNumber, ContactsContract.CommonDataKinds.Email recipientEmail, ParcelStatus status, String deliveryName) {
-        this.parcelType = parcelType;
-        this.isFragile = isFragile;
-        this.parcelWeight = parcelWeight;
-        this.storageLocation = storageLocation;
-        this.recipientName = recipientName;
-        this.recipientAddress = recipientAddress;
-        this.deliveryParcelDate = deliveryParcelDate;
-        this.getParcelDate = getParcelDate;
-        this.phoneNumber = phoneNumber;
-        this.recipientEmail = recipientEmail;
-        this.status = status;
-        this.deliveryName = deliveryName;
-        parcelID = ++id;
-    }
 //-------------------------------------//
 
 
     //--------------Ges&Set-----------------//
 
-@Exclude
+
+    public long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(long customerId) {
+        this.customerId = customerId;
+    }
+
+    @Exclude
     public long getParcelID() {
         return parcelID;
     }
@@ -95,22 +84,6 @@ public class Parcel {
         this.storageLocation = storageLocation;
     }
 
-    public String getRecipientName() {
-        return recipientName;
-    }
-
-    public void setRecipientName(String recipientName) {
-        this.recipientName = recipientName;
-    }
-
-    public String getRecipientAddress() {
-        return recipientAddress;
-    }
-
-    public void setRecipientAddress(String recipientAddress) {
-        this.recipientAddress = recipientAddress;
-    }
-
     public Date getDeliveryParcelDate() {
         return deliveryParcelDate;
     }
@@ -125,22 +98,6 @@ public class Parcel {
 
     public void setGetParcelDate(Date getParcelDate) {
         this.getParcelDate = getParcelDate;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public ContactsContract.CommonDataKinds.Email getRecipientEmail() {
-        return recipientEmail;
-    }
-
-    public void setRecipientEmail(ContactsContract.CommonDataKinds.Email recipientEmail) {
-        this.recipientEmail = recipientEmail;
     }
 
     public ParcelStatus getStatus() {
