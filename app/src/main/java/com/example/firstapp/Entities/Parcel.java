@@ -2,11 +2,22 @@ package com.example.firstapp.Entities;
 
 import android.location.Location;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Exclude;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.Date;
 
 public class Parcel {
+    private FirebaseDatabase database;
+    private DatabaseReference reference;
     private long parcelID;
     private ParcelType parcelType;
     private boolean isFragile;
@@ -17,9 +28,37 @@ public class Parcel {
     private ParcelStatus status;
     private String deliveryName;
     private String customerId;
-    private static int id = 0;
+    private static int id ;
+
+
     //-------------Ctors--------------------//
     public Parcel() {
+        database=FirebaseDatabase.getInstance();
+        reference=database.getReference("properties");
+        reference.child("parcelId").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                parcelID=dataSnapshot.getValue(long.class);
+                reference.child("parcelId").setValue(parcelID+1).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        //parcelID=id;
+        //id++;
         this.status = ParcelStatus.SENT;
         this.deliveryName = "NO";
     }
@@ -39,7 +78,7 @@ public class Parcel {
         this.customerId = customerId;
     }
 
-    @Exclude
+
     public long getParcelID() {
         return parcelID;
     }
@@ -109,4 +148,20 @@ public class Parcel {
     }
 
     //------------------------------------------//
+
+    @Override
+    public String toString() {
+        return "Parcel{" +
+                "parcelID=" + parcelID +
+                ", parcelType=" + parcelType +
+                ", isFragile=" + isFragile +
+                ", parcelWeight=" + parcelWeight +
+                ", storageLocation=" + storageLocation +
+                ", deliveryParcelDate=" + deliveryParcelDate +
+                ", getParcelDate=" + getParcelDate +
+                ", status=" + status +
+                ", deliveryName='" + deliveryName + '\'' +
+                ", customerId='" + customerId + '\'' +
+                '}';
+    }
 }

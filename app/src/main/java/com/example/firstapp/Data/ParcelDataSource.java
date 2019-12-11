@@ -143,12 +143,12 @@ public class ParcelDataSource {
     }
 
 
-    private static void addParcel(final Parcel parcel, final Action<Long> action) throws Exception {
+    public static void addParcel(final Parcel parcel, final Action<Long> action) throws Exception {
         final String customerKey = String.valueOf(parcel.getCustomerId());
         ParcelRef.child(customerKey).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                final Customer customer=dataSnapshot.getValue(Customer.class);
+                 Customer customer=dataSnapshot.getValue(Customer.class);
                 customer.setId(customerKey);
 
                 if(customer==null){
