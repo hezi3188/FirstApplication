@@ -10,4 +10,18 @@
         <item>Big package</item>
         <item>Small package</item>
     </string-array>
+
+    <string-array name="package_weight_select">
+        <item>Until 500 gr</item>
+        <item>Until 1 kg</item>
+        <item>Until 5 kg</item>
+        <item>Until 20 kg</item>
+    </string-array>
+
+    <string-array name="package_status_select">
+        <item>Sent</item>
+        <item>In collection</item>
+        <item>On the way</item>
+        <item>Accepted</item>
+    </string-array>
 </resources>

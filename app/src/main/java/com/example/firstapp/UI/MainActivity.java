@@ -2,55 +2,33 @@ package com.example.firstapp.UI;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.TimePicker;
 
 import java.util.Calendar;
-import android.app.DatePickerDialog.OnDateSetListener;
-import android.location.Location;
-import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.provider.ContactsContract.CommonDataKinds;
-import android.view.View;
-import android.widget.AdapterView;
+
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.firstapp.Data.ParcelDataSource;
-import com.example.firstapp.Entities.Customer;
 import com.example.firstapp.Entities.Parcel;
-import com.example.firstapp.Entities.ParcelStatus;
-import com.example.firstapp.Entities.ParcelType;
-import com.example.firstapp.Entities.ParcelWeight;
 import com.example.firstapp.R;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+    //Declaration of variables
+    Spinner parcelTypeSpinner;
+    ArrayAdapter<CharSequence> parcelTypeAdapter;
 
-public class MainActivity extends AppCompatActivity implements
-        View.OnClickListener{
-    Spinner spinner;
-    private FirebaseDatabase mFirebaseDatabase;
-    private DatabaseReference mMessageDatabaseReference;
-    Parcel parcel;
-    List<Customer> customers = new ArrayList<Customer>();
+    Spinner parcelWeightSpinner;
+    ArrayAdapter<CharSequence> parcelWeightAdapter;
 
-    //ParcelDataSource parcelDataSource=ParcelDataSource.getInstance();
-    ArrayAdapter<CharSequence> adapter;
-
+    Spinner statusSpinner;
+    ArrayAdapter<CharSequence> statusAdapter;
 
     Button btnDatePicker;
     EditText txtDate;
@@ -61,6 +39,70 @@ public class MainActivity extends AppCompatActivity implements
     EditText txtDate2;
     private int mYear2, mMonth2, mDay2;
 
+    Parcel parcel;
+
+    //private FirebaseDatabase mFirebaseDatabase;
+    //private DatabaseReference mMessageDatabaseReference;
+    //Parcel parcel;
+    //List<Customer> customers = new ArrayList<Customer>();
+
+    //ParcelDataSource parcelDataSource=ParcelDataSource.getInstance();
+
+
+
+    public void initParcelTypeSpinner(){
+        parcelTypeSpinner = (Spinner)findViewById(R.id.parcelTypeSpinner);
+        parcelTypeAdapter = ArrayAdapter.createFromResource(this,R.array.package_type_select,android.R.layout.simple_spinner_item);
+        parcelTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        parcelTypeSpinner.setAdapter(parcelTypeAdapter);
+        parcelTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(getBaseContext(),parent.getItemAtPosition(position)+" selected",Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
+    public void initParcelWeightSpinner(){
+        parcelWeightSpinner = (Spinner)findViewById(R.id.parcelWeightSpinner);
+        parcelWeightAdapter = ArrayAdapter.createFromResource(this,R.array.package_weight_select,android.R.layout.simple_spinner_item);
+        parcelWeightAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        parcelWeightSpinner.setAdapter(parcelWeightAdapter);
+        parcelWeightSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(getBaseContext(),parent.getItemAtPosition(position)+" selected",Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+    }
+    public void initStatusSpinner(){
+        statusSpinner = (Spinner)findViewById(R.id.statusSpinner);
+        statusAdapter = ArrayAdapter.createFromResource(this,R.array.package_status_select,android.R.layout.simple_spinner_item);
+        statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        statusSpinner.setAdapter(statusAdapter);
+        statusSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(getBaseContext(),parent.getItemAtPosition(position)+" selected",Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,76 +110,26 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //init spinners
+        initParcelTypeSpinner();
+        initParcelWeightSpinner();
+        initStatusSpinner();
 
-        btnDatePicker=(Button)findViewById(R.id.btn_date);
-        txtDate=(EditText)findViewById(R.id.in_date);
+
+
+
+
+
+
+        btnDatePicker=(Button)findViewById(R.id.deliveryParcelDateButton);
+        txtDate=(EditText)findViewById(R.id.deliveryParcelDateEditText);
         btnDatePicker.setOnClickListener(this);
 
 
-        btnDatePicker2=(Button)findViewById(R.id.btn_date2);
-        txtDate2=(EditText)findViewById(R.id.in_date2);
+        btnDatePicker2=(Button)findViewById(R.id.getParcelDateButton);
+        txtDate2=(EditText)findViewById(R.id.getParcelDateEditText);
         btnDatePicker2.setOnClickListener(this);
-
-
-
-}
-    @Override
-    public void onClick(View v) {
-
-        if (v == btnDatePicker) {
-
-            // Get Current Date
-            final Calendar c = Calendar.getInstance();
-            mYear = c.get(Calendar.YEAR);
-            mMonth = c.get(Calendar.MONTH);
-            mDay = c.get(Calendar.DAY_OF_MONTH);
-
-
-            DatePickerDialog datePickerDialog = new DatePickerDialog(this,
-                    new DatePickerDialog.OnDateSetListener() {
-
-                        @Override
-                        public void onDateSet(DatePicker view, int year,
-                                              int monthOfYear, int dayOfMonth) {
-
-                            txtDate.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
-
-                        }
-                    }, mYear, mMonth, mDay);
-            datePickerDialog.show();
-        }
-
-
-
-        if (v == btnDatePicker2) {
-
-            // Get Current Date
-            final Calendar c = Calendar.getInstance();
-            mYear = c.get(Calendar.YEAR);
-            mMonth = c.get(Calendar.MONTH);
-            mDay = c.get(Calendar.DAY_OF_MONTH);
-
-
-            DatePickerDialog datePickerDialog = new DatePickerDialog(this,
-                    new DatePickerDialog.OnDateSetListener() {
-
-                        @Override
-                        public void onDateSet(DatePicker view, int year,
-                                              int monthOfYear, int dayOfMonth) {
-
-                            txtDate2.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
-
-                        }
-                    }, mYear2, mMonth2, mDay2);
-            datePickerDialog.show();
-        }
-
-
-
-
-
-
-        /*
+ /*
 /*try {
 
 
@@ -231,21 +223,7 @@ catch (Exception e){
         //mMessageDatabaseReference = mFirebaseDatabase.getReference().child("customers");
 
       //  mMessageDatabaseReference.setValue(customers);
-        spinner = (Spinner)findViewById(R.id.packageSpinner);
-        adapter = ArrayAdapter.createFromResource(this,R.array.package_type_select,android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getBaseContext(),parent.getItemAtPosition(position)+"selected",Toast.LENGTH_LONG).show();
-            }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
 
         final Parcel p=new Parcel();
 
@@ -284,5 +262,59 @@ catch (Exception e){
 
             }
         });
-    */}
+    */
+
+
+}
+    @Override
+    public void onClick(View v) {
+        // for deliveryParcelDate
+        if (v == btnDatePicker) {
+
+            // Get Current Date
+            final Calendar c = Calendar.getInstance();
+            mYear = c.get(Calendar.YEAR);
+            mMonth = c.get(Calendar.MONTH);
+            mDay = c.get(Calendar.DAY_OF_MONTH);
+
+
+            DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+                    new DatePickerDialog.OnDateSetListener() {
+
+                        @Override
+                        public void onDateSet(DatePicker view, int year,
+                                              int monthOfYear, int dayOfMonth) {
+
+                            txtDate.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
+
+                        }
+                    }, mYear, mMonth, mDay);
+            datePickerDialog.show();
+        }
+
+
+        //for getParcelDate
+        if (v == btnDatePicker2) {
+
+            // Get Current Date
+            final Calendar c = Calendar.getInstance();
+            mYear2 = c.get(Calendar.YEAR);
+            mMonth2 = c.get(Calendar.MONTH);
+            mDay2 = c.get(Calendar.DAY_OF_MONTH);
+
+
+            DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+                    new DatePickerDialog.OnDateSetListener() {
+
+                        @Override
+                        public void onDateSet(DatePicker view, int year,
+                                              int monthOfYear, int dayOfMonth) {
+
+                            txtDate2.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
+
+                        }
+                    }, mYear2, mMonth2, mDay2);
+            datePickerDialog.show();
+        }
+       }
 }
