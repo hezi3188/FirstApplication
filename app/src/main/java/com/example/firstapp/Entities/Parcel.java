@@ -1,7 +1,5 @@
 package com.example.firstapp.Entities;
 
-import android.location.Location;
-
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -9,7 +7,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.Exclude;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
@@ -22,46 +19,62 @@ public class Parcel {
     private ParcelType parcelType;
     private boolean isFragile;
     private ParcelWeight parcelWeight;
-    private Location storageLocation;
+    private double Latitude;
+    private double Longitude;
     private Date deliveryParcelDate;
     private Date getParcelDate;
     private ParcelStatus status;
     private String deliveryName;
     private String customerId;
-    private static int id ;
+    public interface  Action<T>{
+        void OnSuccess(T obj);
+        void OnFailure(Exception exception);
+
+    }
 
 
-    //-------------Ctors--------------------//
-    public Parcel() {
-        database=FirebaseDatabase.getInstance();
-        reference=database.getReference("properties");
+    public void setParcelID(long parcelID) {
+        this.parcelID = parcelID;
+    }
+
+    public void setKeyToFireBase(final Action<Long> action){
+        reference.child("parcelId").setValue(parcelID+1).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                action.OnSuccess(parcelID);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                action.OnFailure(new Exception("Error to set key from server, maybe no connection to Internet!"));
+            }
+        });
+    }
+
+    public void getKeyFromFireBase(final Action<Long> action){
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        reference = database.getReference("properties");
         reference.child("parcelId").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                parcelID=dataSnapshot.getValue(long.class);
-                reference.child("parcelId").setValue(parcelID+1).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-
-                    }
-                });
+                long id =dataSnapshot.getValue(int.class);
+                action.OnSuccess(id);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                //action.OnFailure(new Exception("Error to get parcel's key from server, maybe no connection to Internet!"));
             }
         });
-        //parcelID=id;
-        //id++;
+
+    }
+    //-------------Ctors--------------------//
+    public Parcel() {
+
         this.status = ParcelStatus.SENT;
         this.deliveryName = "NO";
     }
+
 
 
 //-------------------------------------//
@@ -115,12 +128,20 @@ public class Parcel {
         this.parcelWeight = parcelWeight;
     }
 
-    public Location getStorageLocation() {
-        return storageLocation;
+    public double getLatitude() {
+        return Latitude;
     }
 
-    public void setStorageLocation(Location storageLocation) {
-        this.storageLocation = storageLocation;
+    public void setLatitude(double latitude) {
+        this.Latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return Longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.Longitude = longitude;
     }
 
     public Date getDeliveryParcelDate() {
@@ -152,11 +173,14 @@ public class Parcel {
     @Override
     public String toString() {
         return "Parcel{" +
-                "parcelID=" + parcelID +
+                "database=" + database +
+                ", reference=" + reference +
+                ", parcelID=" + parcelID +
                 ", parcelType=" + parcelType +
                 ", isFragile=" + isFragile +
                 ", parcelWeight=" + parcelWeight +
-                ", storageLocation=" + storageLocation +
+                ", Latitude=" + Latitude +
+                ", Longitude=" + Longitude +
                 ", deliveryParcelDate=" + deliveryParcelDate +
                 ", getParcelDate=" + getParcelDate +
                 ", status=" + status +

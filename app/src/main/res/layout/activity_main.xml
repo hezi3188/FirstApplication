@@ -8,64 +8,28 @@
     android:padding="16dp"
     tools:context=".UI.MainActivity">
 
-    <Spinner
-        android:id="@+id/parcelTypeSpinner"
-        android:layout_width="387dp"
-        android:layout_height="50dp"
-        android:spinnerMode="dropdown"
-         />
 
-    <CheckBox
-        android:id="@+id/isFragileCheckBox"
+    <AutoCompleteTextView
+        android:id="@+id/idCustomerEditText"
         android:layout_width="384dp"
-        android:layout_height="46dp"
-        android:text="@string/is_the_package_fragile" />
+        android:layout_height="wrap_content"
+        android:hint="enter customer"
+        android:completionThreshold="1"
+        android:completionHint="select customer"
+        android:scrollbarAlwaysDrawVerticalTrack="true">
 
-
-    <Spinner
-        android:id="@+id/parcelWeightSpinner"
-        android:layout_width="384dp"
-        android:layout_height="42dp" />
+    </AutoCompleteTextView>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="384dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/idCustomerEditText"
+            android:id="@+id/deliveryNameEditText"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="enter customer"></com.google.android.material.textfield.TextInputEditText>
+            android:layout_height="71dp"
+            android:hint="enter name of delivery person "></com.google.android.material.textfield.TextInputEditText>
     </com.google.android.material.textfield.TextInputLayout>
-
-
-    <LinearLayout
-        android:layout_width="378dp"
-        android:layout_height="67dp">
-
-        <EditText
-            android:id="@+id/deliveryParcelDateEditText"
-            android:layout_width="262dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="1dp" />
-
-        <Button
-            android:id="@+id/deliveryParcelDateButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/deliveryParcelDateEditText"
-            android:layout_marginStart="0dp"
-            android:layout_marginLeft="0dp"
-            android:layout_marginBottom="-2dp"
-            android:layout_toEndOf="@+id/deliveryParcelDateEditText"
-            android:layout_toRightOf="@+id/deliveryParcelDateEditText"
-            android:text="Date of delivery" />
-
-
-    </LinearLayout>
 
     <LinearLayout
         android:layout_width="384dp"
@@ -82,7 +46,7 @@
 
         <Button
             android:id="@+id/getParcelDateButton"
-            android:layout_width="wrap_content"
+            android:layout_width="117dp"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/getParcelDateEditText"
             android:layout_marginStart="0dp"
@@ -94,22 +58,64 @@
 
 
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="384dp"
+        android:layout_height="67dp">
+
+        <EditText
+            android:id="@+id/deliveryParcelDateEditText"
+            android:layout_width="262dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="1dp"/>
+
+        <Button
+            android:id="@+id/deliveryParcelDateButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/deliveryParcelDateEditText"
+            android:layout_marginStart="0dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginBottom="-2dp"
+            android:layout_toEndOf="@+id/deliveryParcelDateEditText"
+            android:layout_toRightOf="@+id/deliveryParcelDateEditText"
+            android:text="Date of delivery" />
+
+
+    </LinearLayout>
+
+
+    <Spinner
+        android:id="@+id/parcelTypeSpinner"
+        android:layout_width="387dp"
+        android:layout_height="50dp"
+        android:spinnerMode="dropdown"
+         />
+
+
+
+    <Spinner
+        android:id="@+id/parcelWeightSpinner"
+        android:layout_width="384dp"
+        android:layout_height="42dp" />
+
+
+
+
 
     <Spinner
         android:id="@+id/statusSpinner"
-        android:layout_width="382dp"
+        android:layout_width="383dp"
         android:layout_height="68dp" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+    <CheckBox
+        android:id="@+id/isFragileCheckBox"
+        android:layout_width="384dp"
+        android:layout_height="46dp"
+        android:text="@string/is_the_package_fragile" />
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/deliveryNameEditText"
-            android:layout_width="match_parent"
-            android:layout_height="71dp"
-            android:hint="enter name of delivery person "></com.google.android.material.textfield.TextInputEditText>
-    </com.google.android.material.textfield.TextInputLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"

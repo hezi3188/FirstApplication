@@ -24,6 +24,7 @@ public class Customer {
         parcels=new ArrayList<>();
     }
 
+
     //---------Methods-------------//
     public void addParcel(Parcel parcel){
         parcels.add(parcel);
@@ -119,5 +120,22 @@ public class Customer {
 
     public void setParcels(List<Parcel> parcels) {
         this.parcels = parcels;
+    }
+
+    @Override
+    public String toString() {
+        return "Customer{" +
+                "id='" + id + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", city='" + city + '\'' +
+                ", country='" + country + '\'' +
+                ", street='" + street + '\'' +
+                ", buildingNumber=" + buildingNumber +
+                ", postalAddress=" + postalAddress +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", email='" + email + '\'' +
+                ", parcels=" + parcels +
+                '}';
     }
 }
