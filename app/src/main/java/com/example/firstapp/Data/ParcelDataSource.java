@@ -54,27 +54,23 @@ public class ParcelDataSource {
 
 
     //--------------methods------------------//
-    public static void notifyToCustomerAndParcelList(final NotifyDataChange<List<Customer>> notifyCustomersDataChange, final NotifyDataChange<List<Parcel>> notifyParcelsDataChange){
-        if(notifyCustomersDataChange != null){//need to check
-            if (customersRefChildEventListener != null){
-                notifyCustomersDataChange.onFailure(new Exception("ERROR"));
+    public static void notifyToParcelList(final NotifyDataChange<List<Parcel>> notifyParcelsDataChange){
+        if(notifyParcelsDataChange != null){//need to check
+            if (parcelsRefChildEventListener != null){
                 notifyParcelsDataChange.onFailure(new Exception("ERROR"));
                 return;
             }
             //we do clear because in first time onChildAdded add all the customers
-            customerList.clear();
             parcelList.clear();
-            customersRefChildEventListener = new ChildEventListener() {
+            parcelsRefChildEventListener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                     Customer customer = dataSnapshot.getValue(Customer.class);
                     String id = dataSnapshot.getKey();
                     customer.setId(id);
-                    customerList.add(customer.toString());
                     for (Parcel p : customer.getParcels()) {
                         parcelList.add(p);
                     }
-                    //notifyCustomersDataChange.onDataChanged();
                     notifyParcelsDataChange.onDataChanged(parcelList);
                 }
 
@@ -83,6 +79,21 @@ public class ParcelDataSource {
                     Customer customer = dataSnapshot.getValue(Customer.class);
                     String id = dataSnapshot.getKey();
                     customer.setId(id);
+                    for (int i=0;i<customer.getParcels().size();i++){
+                        boolean flag=false;//check if the parcel of customer is new
+                        for (int j=0;j<parcelList.size();j++)
+                        {
+                            if(customer.getParcels().get(i).getParcelID()==parcelList.get(j).getParcelID()){
+                                parcelList.set(j,customer.getParcels().get(i));
+                                flag=true;
+                                break;
+                            }
+                        }
+                        //if the parcel not find so it's new
+                        if (flag==false)
+                            parcelList.add(customer.getParcels().get(i));
+                    }
+
                     /*for (int i = 0; i < customerList.size(); ++i) {
                         if (customerList.get(i).getId().equals(id)) {
                             customerList.set(i, customer);
@@ -96,9 +107,7 @@ public class ParcelDataSource {
                             }
                             break;
                         }
-                    }
-
-                    notifyCustomersDataChange.onDataChanged(customerList);*/
+                    }*/
                     notifyParcelsDataChange.onDataChanged(parcelList);
                 }
 
@@ -130,14 +139,13 @@ public class ParcelDataSource {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                    notifyCustomersDataChange.onFailure(databaseError.toException());
                     notifyParcelsDataChange.onFailure(databaseError.toException());
                 }
             };
             ParcelRef.addChildEventListener(customersRefChildEventListener);
         }
     }
-    public static void stopNotifyToCustomerAndParcelList(){
+    public static void stopNotifyToParcelList(){
         if(customersRefChildEventListener!=null){
             ParcelRef.removeEventListener(customersRefChildEventListener);
             customersRefChildEventListener=null;
@@ -206,6 +214,7 @@ public class ParcelDataSource {
 
 
     public static void addParcel(final Parcel parcel, final Action<Long> action) throws Exception {
+        //ask to FireBase the next key of parcels can be
         parcel.getKeyFromFireBase(new Parcel.Action<Long>() {
             @Override
             public void OnSuccess(Long obj) {
@@ -219,7 +228,7 @@ public class ParcelDataSource {
                         action.OnProgress("update",70);
 
                         if(customer==null){
-                            action.OnFailure(new Exception("The customer don't exist!"));
+                            action.OnFailure(new Exception("Error, the customer don't exist!"));
                             return;
                         }
 
@@ -229,6 +238,8 @@ public class ParcelDataSource {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 action.OnProgress("update",80);
+
+                                //return to FireBase the update next key of parcels
                                 parcel.setKeyToFireBase(new Parcel.Action<Long>() {
                                     @Override
                                     public void OnSuccess(Long obj) {
@@ -238,10 +249,15 @@ public class ParcelDataSource {
 
                                     @Override
                                     public void OnFailure(Exception exception) {
-
+                                        action.OnFailure(exception);
                                     }
                                 });
 
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                action.OnFailure(e);
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
@@ -260,10 +276,8 @@ public class ParcelDataSource {
 
             @Override
             public void OnFailure(Exception exception) {
-
+                action.OnFailure(exception);
             }
-
-
         });
     }
 

@@ -3,6 +3,7 @@ package com.example.firstapp.UI;
 import android.Manifest;
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -11,6 +12,10 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
@@ -37,47 +42,17 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.firstapp.Data.ParcelDataSource;
-import com.example.firstapp.Entities.Customer;
 import com.example.firstapp.Entities.Parcel;
 import com.example.firstapp.Entities.ParcelStatus;
 import com.example.firstapp.Entities.ParcelType;
 import com.example.firstapp.Entities.ParcelWeight;
 import com.example.firstapp.R;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
-    ArrayAdapter<String> autoCompleteIdAdapter;
-    List<String> idCustomers;
-
-    //Declaration of variables
-    Spinner parcelTypeSpinner;
-    ArrayAdapter<CharSequence> parcelTypeAdapter;
-
-    Spinner parcelWeightSpinner;
-    ArrayAdapter<CharSequence> parcelWeightAdapter;
-
-    Spinner statusSpinner;
-    ArrayAdapter<CharSequence> statusAdapter;
-
-    Button btnDatePicker;
-    EditText txtDate;
-    private int mYear, mMonth, mDay;
-
-
-    Button btnDatePicker2;
-    EditText txtDate2;
-    private int mYear2, mMonth2, mDay2;
-
-
+    //Declaration of views
     CheckBox isFragileCheckBox;
     AutoCompleteTextView idCustomerEditText;
     EditText deliveryParcelDateEditText;
@@ -85,13 +60,236 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextInputEditText deliveryNameEditText;
     ProgressBar progressBar;
     Button addParcelButton;
+    Spinner parcelTypeSpinner;
+    Spinner parcelWeightSpinner;
+    Spinner statusSpinner;
+    Button btnDatePicker;
+    EditText txtDate;
+    Button btnDatePicker2;
+    EditText txtDate2;
 
+    //Declaration of adapters
+    ArrayAdapter<CharSequence> parcelTypeAdapter;
+    ArrayAdapter<CharSequence> parcelWeightAdapter;
+    ArrayAdapter<CharSequence> statusAdapter;
+    ArrayAdapter<String> autoCompleteIdAdapter;
+
+    //Declaration of locations
     LocationListener locationListener;
     LocationManager locationManager;
 
+    //Declaration of auxiliary variables
+    List<String> idCustomers;
+    private int mYear, mMonth, mDay;
+    private int mYear2, mMonth2, mDay2;
 
 
-    public void initVariables(){
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        //initialization
+        findViews();
+        initParcelTypeSpinner();
+        initParcelWeightSpinner();
+        initStatusSpinner();
+        initIdCustomersAuto();
+
+        //on click declarations
+        btnDatePicker.setOnClickListener(this);
+        btnDatePicker2.setOnClickListener(this);
+        addParcelButton.setOnClickListener(this);
+
+        //check GPS permission
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 5);
+        }
+
+        //init location
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        locationListener= new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
+    }
+
+    @Override
+    protected void onDestroy() {
+        ParcelDataSource.stopNotifyToCustomerList();
+        super.onDestroy();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater=getMenuInflater();
+        inflater.inflate(R.menu.parcel_add_menu,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.historyParcels:
+                Intent intent=new Intent(MainActivity.this,HistoryParcelsActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        //for add parcel
+        if(v==addParcelButton){
+            if(!checkViews()){
+                return;
+            }
+
+            addParcel();
+        }
+
+        // for deliveryParcelDate
+        if (v == btnDatePicker) {
+
+            // Get Current Date
+            final Calendar c = Calendar.getInstance();
+            mYear = c.get(Calendar.YEAR);
+            mMonth = c.get(Calendar.MONTH);
+            mDay = c.get(Calendar.DAY_OF_MONTH);
+
+
+            DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+                    new DatePickerDialog.OnDateSetListener() {
+
+                        @Override
+                        public void onDateSet(DatePicker view, int year,
+                                              int monthOfYear, int dayOfMonth) {
+
+                            txtDate.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
+
+                        }
+                    }, mYear, mMonth, mDay);
+            datePickerDialog.show();
+        }
+
+        //for getParcelDate
+        if (v == btnDatePicker2) {
+
+            // Get Current Date
+            final Calendar c = Calendar.getInstance();
+            mYear2 = c.get(Calendar.YEAR);
+            mMonth2 = c.get(Calendar.MONTH);
+            mDay2 = c.get(Calendar.DAY_OF_MONTH);
+
+
+            DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+                    new DatePickerDialog.OnDateSetListener() {
+
+                        @Override
+                        public void onDateSet(DatePicker view, int year,
+                                              int monthOfYear, int dayOfMonth) {
+
+                            txtDate2.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
+
+                        }
+                    }, mYear2, mMonth2, mDay2);
+            datePickerDialog.show();
+        }
+    }
+
+    private void resetView(){
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setProgress(0);
+                addParcelButton.setEnabled(true);
+            }
+        },1500);
+    }
+    private void addParcel(){
+        //check location access
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(getBaseContext(),"You must accepted GPS location",Toast.LENGTH_LONG).show();
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 5);
+            return;
+        }
+
+        Parcel p=null;
+        try {
+            p=getParcel();
+            addParcelButton.setEnabled(false);
+            ParcelDataSource.addParcel(p, new ParcelDataSource.Action<Long>() {
+                @Override
+                public void OnSuccess(Long obj) {
+                    Toast.makeText(getBaseContext(),"The parcel id: "+obj+ " entered",Toast.LENGTH_LONG).show();
+                    addParcelButton.setEnabled(true);
+                    resetView();
+                }
+
+                @Override
+                public void OnFailure(Exception exception) {
+                    Toast.makeText(getBaseContext(),exception.getMessage(),Toast.LENGTH_LONG).show();
+                    addParcelButton.setEnabled(true);
+                    resetView();
+                }
+
+                @Override
+                public void OnProgress(String status, double percent) {
+                    progressBar.setProgress((int)percent);
+                    addParcelButton.setEnabled(false);
+                }
+            });
+        } catch (Exception e) {
+            Toast.makeText(getBaseContext(),e.getMessage(),Toast.LENGTH_LONG).show();
+            addParcelButton.setEnabled(true);
+            resetView();
+        }
+
+    }
+    private boolean checkViews(){
+        boolean checkIdCustomer=idCustomerEditText.getText().toString().isEmpty();
+        boolean checkDeliveryName=deliveryNameEditText.getText().toString().isEmpty();
+        boolean checkParcelDate=getParcelDateEditText.getText().toString().isEmpty();
+        boolean checkDeliveryParcelDate=deliveryParcelDateEditText.getText().toString().isEmpty();
+        boolean checkParcelType=parcelTypeSpinner.getSelectedItemPosition()==0;
+        boolean checkWeightPackage=parcelWeightSpinner.getSelectedItemPosition()==0;
+        boolean checkStatusParcel=statusSpinner.getSelectedItemPosition()==0;
+        if(!idCustomers.contains(idCustomerEditText.getText().toString())&&!checkIdCustomer){
+            Toast.makeText(getBaseContext(),"Error, the id is not member friend",Toast.LENGTH_LONG).show();
+            return  false;
+        }
+        if( !checkIdCustomer&&!checkDeliveryName&&!
+                checkParcelDate&&!checkDeliveryParcelDate&&!
+                checkParcelType&&!checkWeightPackage&&!
+                checkStatusParcel){
+            return true;
+        }
+        else {
+            Toast.makeText(getBaseContext(),"Fill all the details please!",Toast.LENGTH_LONG).show();
+            return false;
+        }
+    }
+    private void findViews(){
         isFragileCheckBox=(CheckBox)findViewById(R.id.isFragileCheckBox);
         idCustomerEditText=(AutoCompleteTextView)findViewById(R.id.idCustomerEditText);
         deliveryParcelDateEditText=(EditText)findViewById(R.id.deliveryParcelDateEditText);
@@ -102,9 +300,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         parcelTypeSpinner = (Spinner)findViewById(R.id.parcelTypeSpinner);
         parcelWeightSpinner = (Spinner)findViewById(R.id.parcelWeightSpinner);
         statusSpinner = (Spinner)findViewById(R.id.statusSpinner);
+        btnDatePicker=(Button)findViewById(R.id.deliveryParcelDateButton);
+        txtDate=(EditText)findViewById(R.id.deliveryParcelDateEditText);
+        btnDatePicker2=(Button)findViewById(R.id.getParcelDateButton);
+        txtDate2=(EditText)findViewById(R.id.getParcelDateEditText);
     }
-
-    public void initParcelTypeSpinner(){
+    private void initParcelTypeSpinner(){
         parcelTypeAdapter = ArrayAdapter.createFromResource(this,R.array.package_type_select,android.R.layout.simple_spinner_item);
         parcelTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         parcelTypeSpinner.setAdapter(parcelTypeAdapter);
@@ -121,7 +322,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
     }
-    public void initParcelWeightSpinner(){
+    private void initParcelWeightSpinner(){
         parcelWeightAdapter = ArrayAdapter.createFromResource(this,R.array.package_weight_select,android.R.layout.simple_spinner_item);
         parcelWeightAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         parcelWeightSpinner.setAdapter(parcelWeightAdapter);
@@ -139,7 +340,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
 
     }
-    public void initStatusSpinner(){
+    private void initStatusSpinner(){
         statusAdapter = ArrayAdapter.createFromResource(this,R.array.package_status_select,android.R.layout.simple_spinner_item);
         statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         statusSpinner.setAdapter(statusAdapter);
@@ -153,6 +354,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
 
+            }
+        });
+
+    }
+    private void initIdCustomersAuto(){
+        idCustomers=new ArrayList<String>();
+        autoCompleteIdAdapter=new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,idCustomers);
+        idCustomerEditText.setAdapter(autoCompleteIdAdapter);
+        ParcelDataSource.notifyToCustomerList(new ParcelDataSource.NotifyDataChange<List<String>>() {
+            @Override
+            public void onDataChanged(List<String> obj) {
+                autoCompleteIdAdapter.clear();
+                autoCompleteIdAdapter.addAll(obj);
+                autoCompleteIdAdapter.notifyDataSetChanged();
+                idCustomerEditText.clearFocus();
+            }
+
+            @Override
+            public void onFailure(Exception exception) {
+                Toast.makeText(getBaseContext(),exception.getMessage(),Toast.LENGTH_LONG).show();
             }
         });
 
@@ -195,6 +416,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Parcel getParcel() throws Exception {
         final Parcel parcel=new Parcel();
 
+        //set delivery parcel date
         String sDate1=deliveryParcelDateEditText.getText().toString();
         Date date1=null;
         try {
@@ -204,6 +426,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         parcel.setDeliveryParcelDate(date1);
 
+        //set get parcel date
         String sDate2=getParcelDateEditText.getText().toString();
         Date date2=null;
         try {
@@ -212,6 +435,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             throw new Exception("The date of get parcel error, the pattern is dd-MM-yyyy");
         }
         parcel.setGetParcelDate(date2);
+
+        //set location
+        Location location= getLocation();
+        setLocation(location,parcel);
+
+        //set everything else
         parcel.setParcelType(getParcelType());
         parcel.setStatus(getParcelStatus());
         parcel.setParcelWeight(getParcelWeight());
@@ -221,234 +450,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             parcel.setFragile(false);
         parcel.setCustomerId(idCustomerEditText.getText().toString());
         parcel.setDeliveryName(deliveryNameEditText.getText().toString());
-        Location location=setLocationManager();
-        getPlace(location,parcel);
+
         return parcel;
     }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-
-
-        //init spinners
-        initVariables();
-        initParcelTypeSpinner();
-        initParcelWeightSpinner();
-        initStatusSpinner();
-
-        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-
-
-
-
-
-        btnDatePicker=(Button)findViewById(R.id.deliveryParcelDateButton);
-        txtDate=(EditText)findViewById(R.id.deliveryParcelDateEditText);
-        btnDatePicker.setOnClickListener(this);
-
-
-        btnDatePicker2=(Button)findViewById(R.id.getParcelDateButton);
-        txtDate2=(EditText)findViewById(R.id.getParcelDateEditText);
-        btnDatePicker2.setOnClickListener(this);
-
-
-
-        addParcelButton.setOnClickListener(this);
-
-        locationListener= new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-
-            }
-        };
-
+    private Location getLocation() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 5);
-        }
-
-        idCustomers=new ArrayList<String>();
-        //idCustomers.add("1");
-        autoCompleteIdAdapter=new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,idCustomers);
-        idCustomerEditText.setAdapter(autoCompleteIdAdapter);
-        ParcelDataSource.notifyToCustomerList(new ParcelDataSource.NotifyDataChange<List<String>>() {
-            @Override
-            public void onDataChanged(List<String> obj) {
-                //idCustomers.clear();
-                //idCustomers.addAll(obj);
-
-                autoCompleteIdAdapter.clear();
-                autoCompleteIdAdapter.addAll(obj);
-                autoCompleteIdAdapter.notifyDataSetChanged();
-                idCustomerEditText.clearFocus();
-
-            }
-
-            @Override
-            public void onFailure(Exception exception) {
-                Toast.makeText(getBaseContext(),exception.getMessage(),Toast.LENGTH_LONG).show();
-            }
-        });
-
-    }
-
-    @Override
-    public void onClick(View v) {
-        if(v==addParcelButton){
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(getBaseContext(),"You must accepted GPS location",Toast.LENGTH_LONG).show();
-                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 5);
-                return;
-            }
-
-            Parcel p=null;
-            try {
-                p=getParcel();
-                ParcelDataSource.addParcel(p, new ParcelDataSource.Action<Long>() {
-                    @Override
-                    public void OnSuccess(Long obj) {
-                        Toast.makeText(getBaseContext(),"The parcel id: "+obj+ " entered",Toast.LENGTH_LONG).show();
-
-                    }
-
-                    @Override
-                    public void OnFailure(Exception exception) {
-                        Toast.makeText(getBaseContext(),exception.getMessage(),Toast.LENGTH_LONG).show();
-                    }
-
-                    @Override
-                    public void OnProgress(String status, double percent) {
-                        progressBar.setProgress((int)percent);
-                    }
-                });
-            } catch (Exception e) {
-                Toast.makeText(getBaseContext(),e.getMessage(),Toast.LENGTH_LONG).show();
-            }
-
-            Customer customer2=new Customer();
-            customer2.setId("318834578");
-            customer2.setFirstName("Yechezkel");
-            customer2.setLastName("Ben Atar");
-            customer2.setCity("Jerusalem");
-            customer2.setCountry("Isratfyel");
-            customer2.setBuildingNumber(23);
-            customer2.setStreet("Fatal");
-            customer2.setPostalAddress(45);
-            customer2.setEmail("hezi@gmail.com");
-            customer2.setPhoneNumber("050505050");
-
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference myRef = database.getReference().child("customers/318834578");
-            myRef.setValue(customer2);
-           // idCustomers.add("1111");
-            //autoCompleteIdAdapter.notifyDataSetChanged();
-            //idCustomerEditText.setAdapter(autoCompleteIdAdapter);
-            ///mFirebaseDatabase = FirebaseDatabase.getInstance();
-            //mMessageDatabaseReference = mFirebaseDatabase.getReference().child("customers");
-
-            //  mMessageDatabaseReference.setValue(customers);
-/*
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference myRef = database.getReference("customers/0/parcels/65");
-            myRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    Parcel val=dataSnapshot.getValue(Parcel.class);
-                    Toast.makeText(getBaseContext(),val.toString(),Toast.LENGTH_LONG).show();
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            });
-*/
-        }
-        // for deliveryParcelDate
-        if (v == btnDatePicker) {
-
-            // Get Current Date
-            final Calendar c = Calendar.getInstance();
-            mYear = c.get(Calendar.YEAR);
-            mMonth = c.get(Calendar.MONTH);
-            mDay = c.get(Calendar.DAY_OF_MONTH);
-
-
-            DatePickerDialog datePickerDialog = new DatePickerDialog(this,
-                    new DatePickerDialog.OnDateSetListener() {
-
-                        @Override
-                        public void onDateSet(DatePicker view, int year,
-                                              int monthOfYear, int dayOfMonth) {
-
-                            txtDate.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
-
-                        }
-                    }, mYear, mMonth, mDay);
-            datePickerDialog.show();
-        }
-
-
-        //for getParcelDate
-        if (v == btnDatePicker2) {
-
-            // Get Current Date
-            final Calendar c = Calendar.getInstance();
-            mYear2 = c.get(Calendar.YEAR);
-            mMonth2 = c.get(Calendar.MONTH);
-            mDay2 = c.get(Calendar.DAY_OF_MONTH);
-
-
-            DatePickerDialog datePickerDialog = new DatePickerDialog(this,
-                    new DatePickerDialog.OnDateSetListener() {
-
-                        @Override
-                        public void onDateSet(DatePicker view, int year,
-                                              int monthOfYear, int dayOfMonth) {
-
-                            txtDate2.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
-
-                        }
-                    }, mYear2, mMonth2, mDay2);
-            datePickerDialog.show();
-        }
-       }
-
-
-
-    private Location setLocationManager() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 5);
-            return null;// locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            return null;
         }
         else {
-            // Android version is lesser than 6.0 or the permission is already granted.
-           // locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
             return locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         }
     }
-
-    public void getPlace(Location location,Parcel parcel) throws Exception  {
+    public void setLocation(Location location, Parcel parcel) throws Exception  {
 
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         List<Address> addresses = null;
@@ -459,78 +475,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 parcel.setLatitude(addresses.get(0).getLatitude());
                 return ;
             }
-            throw new  Exception("no location");
+            throw new  Exception("Error, no location");
         } catch (IOException e)
         {
             e.printStackTrace();
         }
         throw new Exception("Error to get location!");
     }
-
-
-    @Override
-    protected void onDestroy() {
-        ParcelDataSource.stopNotifyToCustomerList();
-        super.onDestroy();
-    }
 }
 
 
-
-//private FirebaseDatabase mFirebaseDatabase;
-//private DatabaseReference mMessageDatabaseReference;
-//Parcel parcel;
-//List<Customer> customers = new ArrayList<Customer>();
-
-//ParcelDataSource parcelDataSource=ParcelDataSource.getInstance();
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-        Parcel parcel=new Parcel();
-        parcel.setParcelType(ParcelType.BIG_PACKAGE);
-        parcel.setFragile(true);
-        parcel.setParcelWeight(ParcelWeight.UNTIL_5_KG);
-        parcel.setLatitude(545588.454);
-        parcel.setLongitude(5459.4524);
-        parcel.setDeliveryParcelDate(new Date(8,4,7));
-        parcel.setGetParcelDate(new Date(4,5,4));
-        parcel.setStatus(ParcelStatus.IN_COLLECTION_PROCESS);
-        parcel.setCustomerId("0");
-        parcel.setDeliveryName("mosגגדכגכhe");
-        try {
-            ParcelDataSource.addParcel(parcel, new ParcelDataSource.Action<Long>() {
-                @Override
-                public void OnSuccess(Long obj) {
-                    Toast.makeText(getBaseContext(),"dsdsebhbkbhjhjghjbghjlected",Toast.LENGTH_LONG).show();
-                }
-
-                @Override
-                public void OnFailure(Exception exception) {
-                    Toast.makeText(getBaseContext(),"dsdsקקקקקקקקקקקקקקd",Toast.LENGTH_LONG).show();
-
-                }
-
-                @Override
-                public void OnProgress(String status, double percent) {
-
-                }
-            });
-        }
-        catch (Exception e){
-
-        }
-*/
 
 
 
