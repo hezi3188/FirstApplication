@@ -71,6 +71,7 @@ public class ParcelDataSource {
                     for (Parcel p : customer.getParcels()) {
                         parcelList.add(p);
                     }
+
                     notifyParcelsDataChange.onDataChanged(parcelList);
                 }
 
@@ -79,7 +80,7 @@ public class ParcelDataSource {
                     Customer customer = dataSnapshot.getValue(Customer.class);
                     String id = dataSnapshot.getKey();
                     customer.setId(id);
-                    for (int i=0;i<customer.getParcels().size();i++){
+                   /* for (int i=0;i<customer.getParcels().size();i++){
                         boolean flag=false;//check if the parcel of customer is new
                         for (int j=0;j<parcelList.size();j++)
                         {
@@ -92,22 +93,16 @@ public class ParcelDataSource {
                         //if the parcel not find so it's new
                         if (flag==false)
                             parcelList.add(customer.getParcels().get(i));
-                    }
-
-                    /*for (int i = 0; i < customerList.size(); ++i) {
-                        if (customerList.get(i).getId().equals(id)) {
-                            customerList.set(i, customer);
-                            for (Parcel p : parcelList) {//here we can get bombastic changes at the list
-                                if (p.getCustomerId() == id) {
-                                    parcelList.remove(p);
-                                }
-                            }
-                            for (Parcel p : customer.getParcels()) {
-                                parcelList.add(p);
-                            }
-                            break;
-                        }
                     }*/
+
+                    for (int i = 0; i < parcelList.size();i++) {
+                        if(parcelList.get(i).getCustomerId().equals(id)){
+                            parcelList.remove(i);
+                        }
+                    }
+                    for(int i=0;i<customer.getParcels().size();i++){
+                        parcelList.add(customer.getParcels().get(i));
+                    }
                     notifyParcelsDataChange.onDataChanged(parcelList);
                 }
 
@@ -142,13 +137,13 @@ public class ParcelDataSource {
                     notifyParcelsDataChange.onFailure(databaseError.toException());
                 }
             };
-            ParcelRef.addChildEventListener(customersRefChildEventListener);
+            ParcelRef.addChildEventListener(parcelsRefChildEventListener);
         }
     }
     public static void stopNotifyToParcelList(){
-        if(customersRefChildEventListener!=null){
-            ParcelRef.removeEventListener(customersRefChildEventListener);
-            customersRefChildEventListener=null;
+        if(parcelsRefChildEventListener!=null){
+            ParcelRef.removeEventListener(parcelsRefChildEventListener);
+            parcelsRefChildEventListener=null;
         }
     }
 
