@@ -47,6 +47,7 @@ public class ParcelDataSource {
     static DatabaseReference reference;
     static List<Parcel> parcelList;
     static List<String>customerList;
+
     static {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         reference = database.getReference();
