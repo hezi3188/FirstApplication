@@ -1,7 +1,8 @@
 # FirstApplication
-When we open the app we see firstly activity for add parcek![we see add parcel activity]
+When we open the app we see firstly activity for add parcek
 (The app does not record the recipient's shipping information, because the location is already registered to each "receiving" member.)
-(https://firebasestorage.googleapis.com/v0/b/first-application-1b4c2.appspot.com/o/addParcelActivity.png?alt=media&token=8a05a7dc-9fd8-44c2-87eb-4775b0167731)
+
+![we see add parcel activity](https://firebasestorage.googleapis.com/v0/b/first-application-1b4c2.appspot.com/o/addParcelActivity.png?alt=media&token=8a05a7dc-9fd8-44c2-87eb-4775b0167731)
 
 When we click on the top right we see menu. ![](https://firebasestorage.googleapis.com/v0/b/first-application-1b4c2.appspot.com/o/menuActivity.png?alt=media&token=aaf9a8f4-9647-44ad-8fed-cdd4ef241428)
 
