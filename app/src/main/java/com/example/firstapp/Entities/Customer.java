@@ -18,19 +18,31 @@ public class Customer {
     private int postalAddress;
     private String phoneNumber;
     private String email;
+    private String password;
     private List<Parcel> parcels;
 
     public Customer() {
         parcels=new ArrayList<>();
     }
 
-
     //---------Methods-------------//
     public void addParcel(Parcel parcel){
         parcels.add(parcel);
     }
+    @Exclude
+    public String getAddress(){
+        return street+" "+buildingNumber+","+city+" "+country;
+    }
 
     //----------Get&Set-------------//
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     public String getCity() {
         return city;

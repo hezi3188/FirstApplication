@@ -6,7 +6,7 @@
     <string name="is_the_package_fragile">Is the package fragile?</string>
     <string name="name">Name</string>
     <string-array name="package_type_select">
-        <item>Choose Parcel type</item>
+        <item>What is the Parcel type?</item>
         <item>Envelope</item>
         <item>Big package</item>
         <item>Small package</item>
@@ -20,11 +20,4 @@
         <item>Until 20 kg</item>
     </string-array>
 
-    <string-array name="package_status_select">
-        <item>What the status of Parcel</item>
-        <item>Sent</item>
-        <item>In collection</item>
-        <item>On the way</item>
-        <item>Accepted</item>
-    </string-array>
 </resources>

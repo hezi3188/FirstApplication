@@ -13,8 +13,6 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.Date;
 
 public class Parcel {
-    private FirebaseDatabase database;
-    private DatabaseReference reference;
     private long parcelID;
     private ParcelType parcelType;
     private boolean isFragile;
@@ -26,53 +24,16 @@ public class Parcel {
     private ParcelStatus status;
     private String deliveryName;
     private String customerId;
-    public interface  Action<T>{
-        void OnSuccess(T obj);
-        void OnFailure(Exception exception);
-
-    }
 
 
-    public void setParcelID(long parcelID) {
-        this.parcelID = parcelID;
-    }
 
-    public void setKeyToFireBase(final Action<Long> action){
-        reference.child("parcelId").setValue(parcelID+1).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                action.OnSuccess(parcelID);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                action.OnFailure(new Exception("Error to set key from server, maybe no connection to Internet!"));
-            }
-        });
-    }
 
-    public void getKeyFromFireBase(final Action<Long> action){
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        reference = database.getReference("properties");
-        reference.child("parcelId").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                long id =dataSnapshot.getValue(int.class);
-                action.OnSuccess(id);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                //action.OnFailure(new Exception("Error to get parcel's key from server, maybe no connection to Internet!"));
-            }
-        });
-
-    }
     //-------------Ctors--------------------//
     public Parcel() {
 
         this.status = ParcelStatus.SENT;
         this.deliveryName = "NO";
+        this.getParcelDate = new Date(System.currentTimeMillis());
     }
 
 
@@ -82,6 +43,9 @@ public class Parcel {
 
     //--------------Ges&Set-----------------//
 
+    public void setParcelID(long parcelID) {
+        this.parcelID = parcelID;
+    }
 
     public String getCustomerId() {
         return customerId;
@@ -173,8 +137,6 @@ public class Parcel {
     @Override
     public String toString() {
         return "Parcel{" +
-                "database=" + database +
-                ", reference=" + reference +
                 ", parcelID=" + parcelID +
                 ", parcelType=" + parcelType +
                 ", isFragile=" + isFragile +

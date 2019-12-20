@@ -56,22 +56,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     CheckBox isFragileCheckBox;
     AutoCompleteTextView idCustomerEditText;
     EditText deliveryParcelDateEditText;
-    EditText getParcelDateEditText;
-    TextInputEditText deliveryNameEditText;
     ProgressBar progressBar;
     Button addParcelButton;
     Spinner parcelTypeSpinner;
     Spinner parcelWeightSpinner;
-    Spinner statusSpinner;
     Button btnDatePicker;
     EditText txtDate;
-    Button btnDatePicker2;
-    EditText txtDate2;
 
     //Declaration of adapters
     ArrayAdapter<CharSequence> parcelTypeAdapter;
     ArrayAdapter<CharSequence> parcelWeightAdapter;
-    ArrayAdapter<CharSequence> statusAdapter;
     ArrayAdapter<String> autoCompleteIdAdapter;
 
     //Declaration of locations
@@ -81,7 +75,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //Declaration of auxiliary variables
     List<String> idCustomers;
     private int mYear, mMonth, mDay;
-    private int mYear2, mMonth2, mDay2;
 
 
     @Override
@@ -94,12 +87,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViews();
         initParcelTypeSpinner();
         initParcelWeightSpinner();
-        initStatusSpinner();
         initIdCustomersAuto();
 
         //on click declarations
         btnDatePicker.setOnClickListener(this);
-        btnDatePicker2.setOnClickListener(this);
         addParcelButton.setOnClickListener(this);
 
         //check GPS permission
@@ -189,30 +180,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                         }
                     }, mYear, mMonth, mDay);
-            datePickerDialog.show();
-        }
-
-        //for getParcelDate
-        if (v == btnDatePicker2) {
-
-            // Get Current Date
-            final Calendar c = Calendar.getInstance();
-            mYear2 = c.get(Calendar.YEAR);
-            mMonth2 = c.get(Calendar.MONTH);
-            mDay2 = c.get(Calendar.DAY_OF_MONTH);
-
-
-            DatePickerDialog datePickerDialog = new DatePickerDialog(this,
-                    new DatePickerDialog.OnDateSetListener() {
-
-                        @Override
-                        public void onDateSet(DatePicker view, int year,
-                                              int monthOfYear, int dayOfMonth) {
-
-                            txtDate2.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
-
-                        }
-                    }, mYear2, mMonth2, mDay2);
+            datePickerDialog.getDatePicker().setMaxDate(new Date().getTime());
             datePickerDialog.show();
         }
     }
@@ -268,20 +236,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
     private boolean checkViews(){
         boolean checkIdCustomer=idCustomerEditText.getText().toString().isEmpty();
-        boolean checkDeliveryName=deliveryNameEditText.getText().toString().isEmpty();
-        boolean checkParcelDate=getParcelDateEditText.getText().toString().isEmpty();
         boolean checkDeliveryParcelDate=deliveryParcelDateEditText.getText().toString().isEmpty();
         boolean checkParcelType=parcelTypeSpinner.getSelectedItemPosition()==0;
         boolean checkWeightPackage=parcelWeightSpinner.getSelectedItemPosition()==0;
-        boolean checkStatusParcel=statusSpinner.getSelectedItemPosition()==0;
         if(!idCustomers.contains(idCustomerEditText.getText().toString())&&!checkIdCustomer){
             Toast.makeText(getBaseContext(),"Error, the id is not member friend",Toast.LENGTH_LONG).show();
             return  false;
         }
-        if( !checkIdCustomer&&!checkDeliveryName&&!
-                checkParcelDate&&!checkDeliveryParcelDate&&!
-                checkParcelType&&!checkWeightPackage&&!
-                checkStatusParcel){
+        if( !checkIdCustomer&&!checkDeliveryParcelDate&&!
+                checkParcelType&&!checkWeightPackage){
             return true;
         }
         else {
@@ -293,17 +256,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         isFragileCheckBox=(CheckBox)findViewById(R.id.isFragileCheckBox);
         idCustomerEditText=(AutoCompleteTextView)findViewById(R.id.idCustomerEditText);
         deliveryParcelDateEditText=(EditText)findViewById(R.id.deliveryParcelDateEditText);
-        getParcelDateEditText=(EditText)findViewById(R.id.getParcelDateEditText);
-        deliveryNameEditText=(TextInputEditText)findViewById(R.id.deliveryNameEditText);
         progressBar=(ProgressBar)findViewById(R.id.progressBar);
         addParcelButton=(Button)findViewById(R.id.addParcelButton);
         parcelTypeSpinner = (Spinner)findViewById(R.id.parcelTypeSpinner);
         parcelWeightSpinner = (Spinner)findViewById(R.id.parcelWeightSpinner);
-        statusSpinner = (Spinner)findViewById(R.id.statusSpinner);
         btnDatePicker=(Button)findViewById(R.id.deliveryParcelDateButton);
         txtDate=(EditText)findViewById(R.id.deliveryParcelDateEditText);
-        btnDatePicker2=(Button)findViewById(R.id.getParcelDateButton);
-        txtDate2=(EditText)findViewById(R.id.getParcelDateEditText);
     }
     private void initParcelTypeSpinner(){
         parcelTypeAdapter = ArrayAdapter.createFromResource(this,R.array.package_type_select,android.R.layout.simple_spinner_item);
@@ -327,24 +285,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         parcelWeightAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         parcelWeightSpinner.setAdapter(parcelWeightAdapter);
         parcelWeightSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if(position!=0)
-                    Toast.makeText(getBaseContext(),parent.getItemAtPosition(position)+" selected",Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-    }
-    private void initStatusSpinner(){
-        statusAdapter = ArrayAdapter.createFromResource(this,R.array.package_status_select,android.R.layout.simple_spinner_item);
-        statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        statusSpinner.setAdapter(statusAdapter);
-        statusSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if(position!=0)
@@ -389,18 +329,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         return parcelType;
     }
-    private ParcelStatus getParcelStatus(){
-        ParcelStatus parcelStatus;
-        int position=statusSpinner.getSelectedItemPosition();
-        switch (position){
-            case 1:parcelStatus=ParcelStatus.SENT;break;
-            case 2:parcelStatus=ParcelStatus.IN_COLLECTION_PROCESS;break;
-            case 3:parcelStatus=ParcelStatus.ON_THE_WAY;break;
-            case 4:parcelStatus=ParcelStatus.ACCEPTED;break;
-            default:parcelStatus=null;
-        }
-        return parcelStatus;
-    }
     private ParcelWeight getParcelWeight (){
         ParcelWeight parcelWeight;
         int position=parcelWeightSpinner.getSelectedItemPosition();
@@ -426,31 +354,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         parcel.setDeliveryParcelDate(date1);
 
-        //set get parcel date
-        String sDate2=getParcelDateEditText.getText().toString();
-        Date date2=null;
-        try {
-            date2 = new SimpleDateFormat("dd-MM-yyyy").parse(sDate2);
-        } catch (ParseException e) {
-            throw new Exception("The date of get parcel error, the pattern is dd-MM-yyyy");
-        }
-        parcel.setGetParcelDate(date2);
-
         //set location
         Location location= getLocation();
         setLocation(location,parcel);
 
         //set everything else
         parcel.setParcelType(getParcelType());
-        parcel.setStatus(getParcelStatus());
         parcel.setParcelWeight(getParcelWeight());
         if(isFragileCheckBox.isChecked())
             parcel.setFragile(true);
         else
             parcel.setFragile(false);
         parcel.setCustomerId(idCustomerEditText.getText().toString());
-        parcel.setDeliveryName(deliveryNameEditText.getText().toString());
-
         return parcel;
     }
     private Location getLocation() {
@@ -483,91 +398,3 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         throw new Exception("Error to get location!");
     }
 }
-
-
-
-
-
-
-
-
-
-
- /*
-/*try {
-
-
-    ParcelDataSource.removeParcel(0, "0", new ParcelDataSource.Action<Long>() {
-        @Override
-        public void OnSuccess(Long obj) {
-
-        }
-
-        @Override
-        public void OnFailure(Exception exception) {
-
-        }
-
-        @Override
-        public void OnProgress(String status, double percent) {
-
-        }
-    });
-}
-catch (Exception e){
-
-}
-
-
-
-
-
-        Customer customer1 = new Customer();
-        Customer customer2 = new Customer();
-        Customer customer3 = new Customer();
-        customer1.setId("203342696");
-        customer1.setFirstName("Yigal");
-        customer1.setLastName("Fischler");
-        customer1.setCity("Jerusalem");
-        customer1.setCountry("Israel");
-        customer1.setBuildingNumber(23);
-        customesr1.setStreet("Golomb");
-        customer1.setPostalAddress(45243);
-        customer1.etEmail("yigalf93@gmail.com");
-        customer1.setPhoneNumber("0548002508");
-
-        customer2.setId("318834579");
-        customer2.setFirstName("Yechezkel");
-        customer2.setLastName("Ben Atar");
-        customer2.setCity("Jerusalem");
-        customer2.setCountry("Isratfyel");
-        customer2.setBuildingNumber(23);
-        customer2.setStreet("Fatal");
-        customer2.setPostalAddress(45);
-        customer2.setEmail("hezi@gmail.com");
-        customer2.setPhoneNumber("050505050");
-        customers.add(customer1);
-        customers.add(customer2);
-
-
-        ///mFirebaseDatabase = FirebaseDatabase.getInstance();
-        //mMessageDatabaseReference = mFirebaseDatabase.getReference().child("customers");
-
-      //  mMessageDatabaseReference.setValue(customers);
-
-
-        final Parcel p=new Parcel();
-
-
-              //  p.setRecipientName(((EditText)findViewById(R.id.nameEditText)).getText().toString());
-              //  p.setRecipientAddress(((EditText)findViewById(R.id.recipientAddressEditText)).getText().toString());
-              //  p.setPhoneNumber(((EditText)findViewById(R.id.phoneEditText)).getText().toString());
-
-
-
-
-
-
-            }
-        });
-    */
