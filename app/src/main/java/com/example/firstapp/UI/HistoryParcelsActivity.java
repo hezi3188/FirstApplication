@@ -52,7 +52,7 @@ public class HistoryParcelsActivity extends AppCompatActivity {
 
                 //parcel id view
                 TextView parcelIdTextView=(TextView)convertView.findViewById(R.id.parcelIdTextView);
-                Long parcelId=parcelList.get(position).getParcelID();
+                String parcelId=parcelList.get(position).getParcelID();
                 parcelIdTextView.setText("Details of parcel id: "+parcelId.toString());
 
                 //customer id view

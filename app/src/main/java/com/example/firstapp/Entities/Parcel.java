@@ -13,7 +13,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.Date;
 
 public class Parcel {
-    private long parcelID;
+    private String  parcelID;
     private ParcelType parcelType;
     private boolean isFragile;
     private ParcelWeight parcelWeight;
@@ -24,6 +24,7 @@ public class Parcel {
     private ParcelStatus status;
     private String deliveryName;
     private String customerId;
+    private String address;
 
 
 
@@ -43,7 +44,16 @@ public class Parcel {
 
     //--------------Ges&Set-----------------//
 
-    public void setParcelID(long parcelID) {
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setParcelID(String parcelID) {
         this.parcelID = parcelID;
     }
 
@@ -56,7 +66,7 @@ public class Parcel {
     }
 
 
-    public long getParcelID() {
+    public String getParcelID() {
         return parcelID;
     }
 

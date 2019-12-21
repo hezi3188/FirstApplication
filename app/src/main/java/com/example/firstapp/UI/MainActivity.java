@@ -43,11 +43,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.firstapp.Data.ParcelDataSource;
 import com.example.firstapp.Entities.Parcel;
-import com.example.firstapp.Entities.ParcelStatus;
 import com.example.firstapp.Entities.ParcelType;
 import com.example.firstapp.Entities.ParcelWeight;
 import com.example.firstapp.R;
-import com.google.android.material.textfield.TextInputEditText;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
@@ -206,11 +204,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         try {
             p=getParcel();
             addParcelButton.setEnabled(false);
-            ParcelDataSource.addParcel(p, new ParcelDataSource.Action<Long>() {
+            ParcelDataSource.addParcel(p, new ParcelDataSource.Action<String>() {
                 @Override
-                public void OnSuccess(Long obj) {
+                public void OnSuccess(String obj) {
                     Toast.makeText(getBaseContext(),"The parcel id: "+obj+ " entered",Toast.LENGTH_LONG).show();
-                    addParcelButton.setEnabled(true);
                     resetView();
                 }
 
