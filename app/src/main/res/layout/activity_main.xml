@@ -13,8 +13,8 @@
         android:id="@+id/idCustomerEditText"
         android:layout_width="384dp"
         android:layout_height="80dp"
-        android:hint="enter id of member friend"
-        android:inputType="number"
+        android:hint="enter user friend"
+        android:inputType="textEmailAddress"
         android:completionThreshold="1"
         android:completionHint="select customer"
         android:scrollbarAlwaysDrawVerticalTrack="true">

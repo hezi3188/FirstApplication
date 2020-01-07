@@ -58,7 +58,7 @@ public class HistoryParcelsActivity extends AppCompatActivity {
                 //customer id view
                 TextView customerIdTextView=(TextView)convertView.findViewById(R.id.customerIdTextView);
                 String customerId=parcelList.get(position).getCustomerId();
-                customerIdTextView.setText("Recipient id: "+customerId);
+                customerIdTextView.setText("User: "+customerId);
 
                 //customer date view
                 TextView deliveryParcelDateTextView=(TextView)convertView.findViewById(R.id.deliveryParcelDateTextView);
@@ -68,22 +68,8 @@ public class HistoryParcelsActivity extends AppCompatActivity {
 
                 //dest view
                 final TextView destTextView=(TextView)convertView.findViewById(R.id.destTextView);
-                ParcelDataSource.getCustomer(parcelList.get(position).getCustomerId(), new ParcelDataSource.Action<Customer>() {
-                    @Override
-                    public void OnSuccess(Customer obj) {
-                        destTextView.setText("Target: "+obj.getAddress());
-                    }
+                destTextView.setText("Target: "+parcelList.get(position).getAddress());
 
-                    @Override
-                    public void OnFailure(Exception exception) {
-
-                    }
-
-                    @Override
-                    public void OnProgress(String status, double percent) {
-
-                    }
-                });
 
                 //status view
                 TextView statusTextView=(TextView)convertView.findViewById(R.id.statusTextView);

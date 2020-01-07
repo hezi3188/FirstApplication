@@ -83,7 +83,7 @@ public class Customer {
     public void setPostalAddress(int postalAddress) {
         this.postalAddress = postalAddress;
     }
-    @Exclude
+
     public String getId() {
         return id;
     }

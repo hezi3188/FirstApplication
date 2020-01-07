@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 
 import com.example.firstapp.Entities.Customer;
 import com.example.firstapp.Entities.Parcel;
+import com.example.firstapp.Utils.Utils;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
@@ -124,6 +125,7 @@ public class ParcelDataSource {
                 public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                     Customer customer = dataSnapshot.getValue(Customer.class);
                     String id = dataSnapshot.getKey();
+                    id= Utils.decodeUserEmail(id);
                     customerList.add(id);
                     notifyCustomersDataChange.onDataChanged(customerList);
                 }
@@ -137,6 +139,7 @@ public class ParcelDataSource {
                 public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
                     Customer customer = dataSnapshot.getValue(Customer.class);
                     String id = dataSnapshot.getKey();
+                    id= Utils.decodeUserEmail(id);
                     for (String strId : customerList) {
                         if (strId.equals(id)) {
                             customerList.remove(strId);
@@ -169,18 +172,39 @@ public class ParcelDataSource {
         final String parcelId=reference.child("customers").push().getKey();
         parcel.setParcelID(parcelId);
         action.OnProgress("update",70);
-        reference.child("parcels").child(parcelId).setValue(parcel).addOnSuccessListener(new OnSuccessListener<Void>() {
+
+        getCustomer(Utils.encodeUserEmail(parcel.getCustomerId()), new Action<Customer>() {
             @Override
-            public void onSuccess(Void aVoid) {
-                action.OnProgress("finished",100);
-                action.OnSuccess(parcelId);
+            public void OnSuccess(Customer obj) {
+                parcel.setAddress(obj.getAddress());
+
+                reference.child("parcels").child(parcelId).setValue(parcel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        action.OnProgress("finished",100);
+                        action.OnSuccess(parcelId);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        action.OnFailure(new Exception("Error"));
+                    }
+                });
             }
-        }).addOnFailureListener(new OnFailureListener() {
+
             @Override
-            public void onFailure(@NonNull Exception e) {
+            public void OnFailure(Exception exception) {
                 action.OnFailure(new Exception("Error"));
             }
+
+            @Override
+            public void OnProgress(String status, double percent) {
+
+            }
         });
+
+
+
     }
     /*
     public static void removeParcel(final long parcelId, final String customerId, final Action<Long> action) throws Exception {
