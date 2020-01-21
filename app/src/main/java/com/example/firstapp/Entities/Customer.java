@@ -2,6 +2,8 @@ package com.example.firstapp.Entities;
 
 import android.provider.ContactsContract;
 
+import androidx.annotation.NonNull;
+
 import com.google.firebase.database.Exclude;
 
 import java.util.ArrayList;
@@ -11,30 +13,55 @@ public class Customer {
     private String id;
     private String firstName;
     private String lastName;
-    private String city;
-    private String country;
-    private String street;
-    private int buildingNumber;
-    private int postalAddress;
+    private String address;
+    private double Latitude;
+    private double Longitude;
     private String phoneNumber;
     private String email;
     private String password;
-    private List<Parcel> parcels;
 
     public Customer() {
-        parcels=new ArrayList<>();
+    }
+
+    public Customer( String id, String firstName, String lastName, String address, double latitude, double longitude, String phoneNumber, String email) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.address = address;
+        Latitude = latitude;
+        Longitude = longitude;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
     }
 
     //---------Methods-------------//
-    public void addParcel(Parcel parcel){
-        parcels.add(parcel);
-    }
-    @Exclude
+
     public String getAddress(){
-        return street+" "+buildingNumber+","+city+" "+country;
+        return address;
     }
 
     //----------Get&Set-------------//
+
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public double getLatitude() {
+        return Latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        Latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return Longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        Longitude = longitude;
+    }
 
     public String getPassword() {
         return password;
@@ -44,45 +71,6 @@ public class Customer {
         this.password = password;
     }
 
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public String getStreet() {
-        return street;
-    }
-
-    public void setStreet(String street) {
-        this.street = street;
-    }
-
-    public int getBuildingNumber() {
-        return buildingNumber;
-    }
-
-    public void setBuildingNumber(int buildingNumber) {
-        this.buildingNumber = buildingNumber;
-    }
-
-    public int getPostalAddress() {
-        return postalAddress;
-    }
-
-    public void setPostalAddress(int postalAddress) {
-        this.postalAddress = postalAddress;
-    }
 
     public String getId() {
         return id;
@@ -126,28 +114,18 @@ public class Customer {
         this.email = email;
     }
 
-    public List<Parcel> getParcels() {
-        return parcels;
-    }
-
-    public void setParcels(List<Parcel> parcels) {
-        this.parcels = parcels;
-    }
-
     @Override
     public String toString() {
         return "Customer{" +
                 "id='" + id + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
-                ", city='" + city + '\'' +
-                ", country='" + country + '\'' +
-                ", street='" + street + '\'' +
-                ", buildingNumber=" + buildingNumber +
-                ", postalAddress=" + postalAddress +
+                ", address='" + address + '\'' +
+                ", Latitude=" + Latitude +
+                ", Longitude=" + Longitude +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", email='" + email + '\'' +
-                ", parcels=" + parcels +
+                ", password='" + password + '\'' +
                 '}';
     }
 }

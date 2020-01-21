@@ -177,7 +177,7 @@ public class ParcelDataSource {
             @Override
             public void OnSuccess(Customer obj) {
                 parcel.setAddress(obj.getAddress());
-
+                parcel.setPhoneNumber(obj.getPhoneNumber());
                 reference.child("parcels").child(parcelId).setValue(parcel).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {

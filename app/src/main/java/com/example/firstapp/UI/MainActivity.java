@@ -50,6 +50,7 @@ import com.example.firstapp.R;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
+
     //Declaration of views
     CheckBox isFragileCheckBox;
     AutoCompleteTextView idCustomerEditText;
@@ -81,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         //initialization
         findViews();
         initParcelTypeSpinner();
@@ -92,9 +94,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         addParcelButton.setOnClickListener(this);
 
         //check GPS permission
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 5);
-        }
+        //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+       //     requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 5);
+       // }
 
         //init location
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
@@ -189,6 +191,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void run() {
                 progressBar.setProgress(0);
                 addParcelButton.setEnabled(true);
+                idCustomerEditText.setEnabled(true);
+                parcelTypeSpinner.setEnabled(true);
+                parcelWeightSpinner.setEnabled(true);
+                isFragileCheckBox.setEnabled(false);
+                deliveryParcelDateEditText.setText("");
+                idCustomerEditText.setText("");
+
             }
         },1500);
     }
@@ -204,6 +213,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         try {
             p=getParcel();
             addParcelButton.setEnabled(false);
+            idCustomerEditText.setEnabled(false);
+            parcelTypeSpinner.setEnabled(false);
+            parcelWeightSpinner.setEnabled(false);
+            isFragileCheckBox.setEnabled(false);
             ParcelDataSource.addParcel(p, new ParcelDataSource.Action<String>() {
                 @Override
                 public void OnSuccess(String obj) {
@@ -214,7 +227,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void OnFailure(Exception exception) {
                     Toast.makeText(getBaseContext(),exception.getMessage(),Toast.LENGTH_LONG).show();
-                    addParcelButton.setEnabled(true);
                     resetView();
                 }
 
@@ -226,7 +238,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             });
         } catch (Exception e) {
             Toast.makeText(getBaseContext(),e.getMessage(),Toast.LENGTH_LONG).show();
-            addParcelButton.setEnabled(true);
             resetView();
         }
 
@@ -302,6 +313,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ParcelDataSource.notifyToCustomerList(new ParcelDataSource.NotifyDataChange<List<String>>() {
             @Override
             public void onDataChanged(List<String> obj) {
+                idCustomers=obj;
                 autoCompleteIdAdapter.clear();
                 autoCompleteIdAdapter.addAll(obj);
                 autoCompleteIdAdapter.notifyDataSetChanged();
@@ -351,7 +363,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         parcel.setDeliveryParcelDate(date1);
 
-        //set location
+
+
+            //set location
         Location location= getLocation();
         setLocation(location,parcel);
 
@@ -376,6 +390,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         }
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case 5: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    addParcel();
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request.
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
     public void setLocation(Location location, Parcel parcel) throws Exception  {
 
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());

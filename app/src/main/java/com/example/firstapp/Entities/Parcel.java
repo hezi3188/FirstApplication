@@ -25,6 +25,8 @@ public class Parcel {
     private String deliveryName;
     private String customerId;
     private String address;
+    private String phoneNumber;
+
 
 
 
@@ -44,6 +46,14 @@ public class Parcel {
 
     //--------------Ges&Set-----------------//
 
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 
     public String getAddress() {
         return address;
