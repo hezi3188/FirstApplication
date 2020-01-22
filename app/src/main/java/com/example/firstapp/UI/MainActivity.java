@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 idCustomerEditText.setEnabled(true);
                 parcelTypeSpinner.setEnabled(true);
                 parcelWeightSpinner.setEnabled(true);
-                isFragileCheckBox.setEnabled(false);
+                isFragileCheckBox.setEnabled(true);
                 deliveryParcelDateEditText.setText("");
                 idCustomerEditText.setText("");
 
